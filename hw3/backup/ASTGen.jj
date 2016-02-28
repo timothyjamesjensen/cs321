@@ -11,7 +11,7 @@ public class ASTGen {
     Class[] classes;
     classes = Top();
 
-    Class.indent(new IndentOutput(System.out), 0, classes);    
+    Class.genJava(0, classes, null, null);    
 
     //System.out.println(test.last.toString());
   }
@@ -29,7 +29,7 @@ Class Class() : { boolean isAbstract = false; Token name; Args args = null;
   ("abstract" {isAbstract = true; } )?
      "class" name = Id()
      ("(" args = Args() ")")?
-     ("{" ( subClasses = classList(0) { subClassExists = true; } ) "}")?
+     ("{" ( subClasses = classList(0) ) "}")?
 
 
   { return new Class(isAbstract, name.image, args, subClasses); } 

@@ -2,7 +2,7 @@
 // CS 321
 // ASsignment 3 Task 1
 
-
+import java.util.ArrayList;
 
 
 class Class {
@@ -25,24 +25,98 @@ class Class {
 
   }
 
-  /** Output an indented description of this class.
-   */
-  void indent(IndentOutput out, int n) {
-     out.indent(n, name);
-     out.indent(n+1, "isAbstract="+isAbstract);
-     out.indent(n+1, "Args");
-     Args.indent(out, n+2, args, null);
-     out.indent(n+1, "Classes");
-     indent(out, n+2, subclasses);
+  void genJava(int n, String parent, ArrayList<String> pList) {
+    ArrayList<String> argList = new ArrayList<>();
+    StringBuffer buf = new StringBuffer();
+    if (isAbstract) {
+      buf.append("abstract ");
+    }
+    buf.append("class ");
+    buf.append(name);
+    if (parent != null) {
+      buf.append(" extends " + parent); 
+    }
+    buf.append(" {");
+    System.out.println(buf.toString());
+    indent(n+1, "// declare the fields for this class\n");
+    Args.genJava(args, null, n+1, argList);
+    indent(0, "\n");
+    indent(n+1, "// declare default constructor for this class\n");
+    writeConstructor(n+1, name, pList, argList); 
+    indent(n+1, "// add additional methods and fields here ...\n");   
+    System.out.println("}");
+    
+    genJava(n, subclasses, name, argList); 
+     
+  }
+  
+  public static void genJava(int n, Class[] classes, String parent, ArrayList<String> pList) {
+    for (int i=0; i<classes.length; i++) {
+      classes[i].genJava(n, parent, pList);
+    }
+
   }
 
-  /** Output an indented description of an array of classes.
-   */
-  public static void indent(IndentOutput out, int n, Class[] classes) {
-    for (int i=0; i<classes.length; i++) {
-      classes[i].indent(out, n);
+  void writeConstructor(int n, String name, ArrayList<String> pList, ArrayList<String> argList) {
+    StringBuffer buf = new StringBuffer();
+    StringBuffer supers = new StringBuffer();
+    ArrayList<String> supersList = new ArrayList<>();
+    ArrayList<String> varsList = new ArrayList<>();
+    StringBuffer vars = new StringBuffer();
+    buf.append(name);
+    buf.append("(");
+    if (pList != null) {
+      int argCount = pList.size();
+      int i = 0;
+      while (i < argCount) {
+        buf.append(pList.get(i));
+        buf.append(" ");
+        buf.append(pList.get(i+1));
+        supers.append("super(" + pList.get(i+1) + ");\n");
+        supersList.add(supers.toString());
+        supers.delete(0, supers.length());
+        i=i+2;
+        if (i < argCount || argList.size() != 0) {
+          buf.append(", ");
+        } 
+      }
     }
+    if (argList.size() != 0) {
+      int argCount = argList.size();
+      int i = 0;
+      while (i < argCount) {
+        buf.append(argList.get(i));
+        buf.append(" ");
+        buf.append(argList.get(i+1));
+        vars.append("this." + argList.get(i+1) + " = " + argList.get(i+1) + ";\n");
+        varsList.add(vars.toString());
+        vars.delete(0, vars.length());
+        i=i+2;
+        if (i < argCount) {
+          buf.append(", ");
+        }
+      }
+    }
+    buf.append(") {\n");
+    indent(n, buf.toString());
+    for (int i = 0; i < supersList.size(); i++) {
+      indent(n+1, supersList.get(i));
+    }
+    for (int i = 0; i < varsList.size(); i++) {
+      indent(n+1, varsList.get(i));
+    }
+    //indent(n+1, supers.toString());
+    //indent(n+1, vars.toString());
+    indent(n, "}\n\n");
   }
+
+   public void indent(int n, String msg) {
+    for (int i=0; i<n; i++) {
+      System.out.print("  ");
+    }
+    System.out.print(msg);
+  }
+
 } 
 
 class Args {
@@ -57,12 +131,10 @@ class Args {
 
   }
 
-  /** Output an indented description of a list of arguments.
-   */
-  public static void indent(IndentOutput out, int n, Args args, Args end) {
-    if (args!=end) {                    // Add to the Args class
-      indent(out, n, args.before, end);
-      args.last.indent(out, n);
+  public static void genJava(Args args, Args end, int n, ArrayList<String> argList) {
+    if (args!=end) {
+      genJava(args.before, end, n, argList);
+      args.last.genJava(n, argList);
     }
   }
 
@@ -98,7 +170,7 @@ class Arg {
       return buf.toString();
   }
 
-  public void indent(IndentOutput out, int n) {
+/*  public void indent(IndentOutput out, int n) {
     StringBuffer buf = new StringBuffer();
     if (visibility!=null) {
       buf.append(visibility);
@@ -108,6 +180,30 @@ class Arg {
     buf.append(" ");
     buf.append(id);
     out.indent(n, buf.toString());
+  }*/
+
+  public void indent(int n, String msg) {
+    for (int i=0; i<n; i++) {
+      System.out.print("  ");
+    }
+    System.out.println(msg);
+  }
+
+  
+  public void genJava(int n, ArrayList<String> argList) {
+    StringBuffer buf = new StringBuffer();
+    if (visibility!=null) {
+      buf.append(visibility);
+      buf.append(" ");
+    }
+    buf.append(type.toString());
+    buf.append(" ");
+    buf.append(id);
+    buf.append(";");
+    indent(n, buf.toString());
+
+    argList.add(type.toString());
+    argList.add(id);
   }
 
 
@@ -137,7 +233,7 @@ class NameType extends Type {
     } else {
       StringBuffer buf = new StringBuffer(ids[0]);
       for (int i=1; i<ids.length; i++) {
-        buf.append(" . ");
+        buf.append(".");
         buf.append(ids[i]);
       }
       return buf.toString();

@@ -5,7 +5,7 @@ public class ASTGen implements ASTGenConstants {
     Class[] classes;
     classes = Top();
 
-    Class.indent(new IndentOutput(System.out), 0, classes);
+    Class.genJava(0, classes, null, null);
 
     //System.out.println(test.last.toString());
   }
@@ -20,7 +20,7 @@ public class ASTGen implements ASTGenConstants {
 
   static final public Class Class() throws ParseException {
                   boolean isAbstract = false; Token name; Args args = null;
-                  Class[] subClasses = new Class[0]; Class sc; boolean subClassExists = false;
+                  Class[] subClasses = new Class[0]; Class sc;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 1:
       jj_consume_token(1);
@@ -46,7 +46,6 @@ public class ASTGen implements ASTGenConstants {
     case 5:
       jj_consume_token(5);
       subClasses = classList(0);
-                                        subClassExists = true;
       jj_consume_token(6);
       break;
     default:
