@@ -1,0 +1,67 @@
+// Tim Jensen
+// CS 321
+// Assignment 3 Task 2
+
+
+PARSER_BEGIN(ASTGen)
+
+public class ASTGen {
+  public static void main(String args[]) throws ParseException {
+    new ASTGen(System.in); 
+    Top();
+    System.out.println("input syntax is valid");
+  }
+}
+
+PARSER_END(ASTGen)
+
+void Top() : {} {
+  (Class())* <EOF>
+}
+
+void Class() : {} { // Using multiple lines for better readability!
+  ("abstract")?
+     "class" Id()
+     ("(" Args() ")")?
+     ("{" (Class())* "}")?
+}
+
+void Args() : {} {
+  (Arg() ("," Arg())*)?
+}
+
+void Arg() : {} {
+  ("public" | "protected" | "private")? Type() Id()
+}
+
+void Type() : {} {
+  NameType() ("[" "]")*
+}
+
+void NameType() : {} {
+  Id() ("." Id())*
+}
+
+void Id() : {} {
+  <IDENT>
+}
+
+//-- Define the lexical structure of an input language: ----------------------
+
+// Input elements that should be ignored/skipped:
+SKIP : {
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+| <"/*" (~["*"])* ("*" | ~["*","/"] (~["*"])* "*")* "/">
+}
+
+
+// Lexemes that should be reported as valid tokens:
+TOKEN : {
+  <IDENT:   <LETTER> (<LETTER> | <DIGIT>)*>
+| <#LETTER: ["A"-"Z","a"-"z","_"]>
+| <#DIGIT:  ["0"-"9"]>
+}
