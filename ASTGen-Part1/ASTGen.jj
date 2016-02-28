@@ -1,0 +1,55 @@
+// Tim Jensen
+// CS 321
+// Assignment 3 Task 2
+
+
+PARSER_BEGIN(ASTGen)
+
+public class ASTGen {
+  public static void main(String args[]) throws ParseException {
+    new ASTGen(System.in); 
+    Top();
+    System.out.println("input syntax is valid");
+  }
+}
+
+PARSER_END(ASTGen)
+
+void Top()       : { } { (E())* <EOF>                                    }
+void E()         : { } { <CLASS> CLASS() | <ABSTRACT> <CLASS> ACLASS()   }
+void CLASS()     : { } { I() ((PAREN())? (CURLY())?  )                   }
+void ACLASS()    : { } { I() ( (CURLY()) | PAREN() (CURLY())? )          }
+
+void CURLY()     : { } { "{" (E())* "}"                                  }
+void PAREN()     : { } { "(" PARAMS() ")"                                }
+void PARAMS()    : { } { ALLTYPE() ("," ALLTYPE() )*                     }
+
+void PROTECTION(): { } { "protected" | "private" | "public"              }
+void ARRAYTYPE() : { } { NAMETYPE() ("[" "]")*                           }
+void NAMETYPE()  : { } { I() ( "." I() )*                                } 
+void ALLTYPE()   : { } { (PROTECTION())? (ARRAYTYPE())+                  }
+void I()         : { } { <IDENT>                                         }
+
+//-- Define the lexical structure of an input language: ----------------------
+
+// Input elements that should be ignored/skipped:
+SKIP : {
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+| <"/*" (~["*"])* ("*" | ~["*","/"] (~["*"])* "*")* "/">
+}
+
+
+TOKEN : {
+  <CLASS: "class">
+| <ABSTRACT: "abstract">
+}
+// Lexemes that should be reported as valid tokens:
+TOKEN : {
+  <IDENT:   <LETTER> (<LETTER> | <DIGIT>)*>
+| <#LETTER: ["A"-"Z","a"-"z","_"]>
+| <#DIGIT:  ["0"-"9"]>
+}
