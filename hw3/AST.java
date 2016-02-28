@@ -65,14 +65,27 @@ abstract class Type {
  
 }
 
-class NamedType extends Type {
+class NameType extends Type {
 
   private String[] ids;
 
-  NamedType(String[] ids) {
+  NameType(String[] ids) {
 
     this.ids = ids;
 
+  }
+  
+  public String toString() {  // Add this method to the NameType class
+    if (ids.length==1) {
+      return ids[0];
+    } else {
+      StringBuffer buf = new StringBuffer(ids[0]);
+      for (int i=1; i<ids.length; i++) {
+        buf.append(" . ");
+        buf.append(ids[i]);
+      }
+      return buf.toString();
+    }
   }
 
 }
@@ -85,6 +98,10 @@ class ArrayType extends Type {
 
     this.elem = elem;
 
+  }
+  
+  public String toString() {  // Add this method to the ArrayType class
+    return elem.toString() + " []";
   }
 
 }

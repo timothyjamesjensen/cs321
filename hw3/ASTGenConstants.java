@@ -11,9 +11,9 @@ public interface ASTGenConstants {
   /** RegularExpression Id. */
   int IDENT = 20;
   /** RegularExpression Id. */
-  int START = 21;
+  int LETTER = 21;
   /** RegularExpression Id. */
-  int PART = 22;
+  int DIGIT = 22;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -41,8 +41,8 @@ public interface ASTGenConstants {
     "<token of kind 18>",
     "<token of kind 19>",
     "<IDENT>",
-    "<START>",
-    "<PART>",
+    "<LETTER>",
+    "<DIGIT>",
   };
 
 }

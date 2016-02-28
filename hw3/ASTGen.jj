@@ -8,8 +8,9 @@ PARSER_BEGIN(ASTGen)
 public class ASTGen {
   public static void main(String args[]) throws ParseException {
     new ASTGen(System.in); 
-    Top();
-    System.out.println("input syntax is valid");
+    NameType test;
+    test = NameType();
+    System.out.println(test.toString());
   }
 }
 
@@ -38,12 +39,18 @@ void Type() : {} {
   NameType() ("[" "]")*
 }
 
-void NameType() : {} {
-  Id() ("." Id())*
+NameType NameType() : { String[] ids; } {
+  ids = Ids(0) { return new NameType(ids); }
 }
 
-void Id() : {} {
-  <IDENT>
+String[] Ids(int soFar): {Token id; String[] ids; } {
+  id = Id() ("." ids=Ids(soFar+1) | { ids = new String[soFar+1]; } )
+  { ids[soFar] = id.image; return ids; }
+}
+
+Token Id() : { Token t; } {
+  t=<IDENT>
+  { return t; }
 }
 
 //-- Define the lexical structure of an input language: ----------------------
