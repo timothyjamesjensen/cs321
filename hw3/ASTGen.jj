@@ -8,35 +8,62 @@ PARSER_BEGIN(ASTGen)
 public class ASTGen {
   public static void main(String args[]) throws ParseException {
     new ASTGen(System.in); 
-    NameType test;
-    test = NameType();
-    System.out.println(test.toString());
+    Class[] classes;
+    classes = Top();
+
+    Class.indent(new IndentOutput(System.out), 0, classes);    
+
+    //System.out.println(test.last.toString());
   }
 }
 
 PARSER_END(ASTGen)
 
-void Top() : {} {
-  (Class())* <EOF>
+Class[] Top() : { Class[] c = null; } {
+  ( c = classList(0) ) <EOF> 
+  { return c; }
 }
 
-void Class() : {} { // Using multiple lines for better readability!
-  ("abstract")?
-     "class" Id()
-     ("(" Args() ")")?
-     ("{" (Class())* "}")?
+Class Class() : { boolean isAbstract = false; Token name; Args args = null;
+                  Class[] subClasses = new Class[0]; Class sc; } { 
+  ("abstract" {isAbstract = true; } )?
+     "class" name = Id()
+     ("(" args = Args() ")")?
+     ("{" ( subClasses = classList(0) { subClassExists = true; } ) "}")?
+
+
+  { return new Class(isAbstract, name.image, args, subClasses); } 
+} 
+
+Class[] classList(int soFar) : { Class c; Class[] subClasses = new Class[0]; } {
+  c = Class() 
+  ( subClasses=classList(soFar+1) | { subClasses = new Class[soFar+1]; } )
+  { subClasses[soFar] = c; 
+    return subClasses; }
 }
 
-void Args() : {} {
-  (Arg() ("," Arg())*)?
+Args Args() : { Args before = null; Arg last; } {
+  (last = Arg() {before = new Args(null, last); } 
+	("," last = Arg() { before = new Args (before, last); } )*)?
+
+  { return before; }
 }
 
-void Arg() : {} {
-  ("public" | "protected" | "private")? Type() Id()
+Arg Arg() : { String v; Type t; Token id;} {
+  v = Visibility() t = Type() id = Id()
+  { return new Arg(v, t, id.image); }
 }
 
-void Type() : {} {
-  NameType() ("[" "]")*
+String Visibility() : {} {
+  ("public"     { return "public";}
+  | "protected" { return "protected";}
+  | "private"   { return "private"; })?
+                { return null; }
+}
+
+Type Type() : { Type t; } {
+  t = NameType() ("[" "]" { t = new ArrayType(t); } )*
+  { return t; }
 }
 
 NameType NameType() : { String[] ids; } {

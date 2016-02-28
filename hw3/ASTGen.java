@@ -2,101 +2,120 @@
 public class ASTGen implements ASTGenConstants {
   public static void main(String args[]) throws ParseException {
     new ASTGen(System.in);
-    NameType test;
-    test = NameType();
-    System.out.println(test.toString());
+    Class[] classes;
+    classes = Top();
+
+    Class.indent(new IndentOutput(System.out), 0, classes);
+
+    //System.out.println(test.last.toString());
   }
 
-  static final public void Top() throws ParseException {
-    label_1:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 1:
-      case 2:
-        ;
-        break;
-      default:
-        jj_la1[0] = jj_gen;
-        break label_1;
-      }
-      Class();
-    }
+  static final public Class[] Top() throws ParseException {
+                  Class[] c = null;
+    c = classList(0);
     jj_consume_token(0);
+    {if (true) return c;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Class() throws ParseException {
+  static final public Class Class() throws ParseException {
+                  boolean isAbstract = false; Token name; Args args = null;
+                  Class[] subClasses = new Class[0]; Class sc; boolean subClassExists = false;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 1:
       jj_consume_token(1);
+               isAbstract = true;
+      break;
+    default:
+      jj_la1[0] = jj_gen;
+      ;
+    }
+    jj_consume_token(2);
+    name = Id();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 3:
+      jj_consume_token(3);
+      args = Args();
+      jj_consume_token(4);
       break;
     default:
       jj_la1[1] = jj_gen;
       ;
     }
-    jj_consume_token(2);
-    Id();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 3:
-      jj_consume_token(3);
-      Args();
-      jj_consume_token(4);
+    case 5:
+      jj_consume_token(5);
+      subClasses = classList(0);
+                                        subClassExists = true;
+      jj_consume_token(6);
       break;
     default:
       jj_la1[2] = jj_gen;
       ;
     }
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 5:
-      jj_consume_token(5);
-      label_2:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 1:
-        case 2:
-          ;
-          break;
-        default:
-          jj_la1[3] = jj_gen;
-          break label_2;
-        }
-        Class();
-      }
-      jj_consume_token(6);
-      break;
-    default:
-      jj_la1[4] = jj_gen;
-      ;
-    }
+    {if (true) return new Class(isAbstract, name.image, args, subClasses);}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Args() throws ParseException {
+  static final public Class[] classList(int soFar) throws ParseException {
+                                 Class c; Class[] subClasses = new Class[0];
+    c = Class();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 1:
+    case 2:
+      subClasses = classList(soFar+1);
+      break;
+    default:
+      jj_la1[3] = jj_gen;
+                                      subClasses = new Class[soFar+1];
+    }
+    subClasses[soFar] = c;
+    {if (true) return subClasses;}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public Args Args() throws ParseException {
+                Args before = null; Arg last;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 8:
     case 9:
     case 10:
     case IDENT:
-      Arg();
-      label_3:
+      last = Arg();
+                 before = new Args(null, last);
+      label_1:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case 7:
           ;
           break;
         default:
-          jj_la1[5] = jj_gen;
-          break label_3;
+          jj_la1[4] = jj_gen;
+          break label_1;
         }
         jj_consume_token(7);
-        Arg();
+        last = Arg();
+                            before = new Args (before, last);
       }
       break;
     default:
-      jj_la1[6] = jj_gen;
+      jj_la1[5] = jj_gen;
       ;
     }
+    {if (true) return before;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Arg() throws ParseException {
+  static final public Arg Arg() throws ParseException {
+              String v; Type t; Token id;
+    v = Visibility();
+    t = Type();
+    id = Id();
+    {if (true) return new Arg(v, t, id.image);}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public String Visibility() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 8:
     case 9:
@@ -104,42 +123,49 @@ public class ASTGen implements ASTGenConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 8:
         jj_consume_token(8);
+                  {if (true) return "public";}
         break;
       case 9:
         jj_consume_token(9);
+                  {if (true) return "protected";}
         break;
       case 10:
         jj_consume_token(10);
+                  {if (true) return "private";}
         break;
       default:
-        jj_la1[7] = jj_gen;
+        jj_la1[6] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[7] = jj_gen;
       ;
     }
-    Type();
-    Id();
+                  {if (true) return null;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Type() throws ParseException {
-    NameType();
-    label_4:
+  static final public Type Type() throws ParseException {
+                Type t;
+    t = NameType();
+    label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 11:
         ;
         break;
       default:
-        jj_la1[9] = jj_gen;
-        break label_4;
+        jj_la1[8] = jj_gen;
+        break label_2;
       }
       jj_consume_token(11);
       jj_consume_token(12);
+                            t = new ArrayType(t);
     }
+    {if (true) return t;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public NameType NameType() throws ParseException {
@@ -158,7 +184,7 @@ public class ASTGen implements ASTGenConstants {
       ids = Ids(soFar+1);
       break;
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[9] = jj_gen;
                                       ids = new String[soFar+1];
     }
     ids[soFar] = id.image; {if (true) return ids;}
@@ -182,13 +208,13 @@ public class ASTGen implements ASTGenConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[11];
+  static final private int[] jj_la1 = new int[10];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x6,0x2,0x8,0x6,0x20,0x80,0x100700,0x700,0x700,0x800,0x2000,};
+      jj_la1_0 = new int[] {0x2,0x8,0x20,0x6,0x80,0x100700,0x700,0x700,0x800,0x2000,};
    }
 
   /** Constructor with InputStream. */
@@ -209,7 +235,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -223,7 +249,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -240,7 +266,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -250,7 +276,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -266,7 +292,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -275,7 +301,7 @@ public class ASTGen implements ASTGenConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 11; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -331,7 +357,7 @@ public class ASTGen implements ASTGenConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < 10; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

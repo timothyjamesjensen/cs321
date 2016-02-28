@@ -2,8 +2,9 @@
 public class ASTGen implements ASTGenConstants {
   public static void main(String args[]) throws ParseException {
     new ASTGen(System.in);
-    Top();
-    System.out.println("input syntax is valid");
+    Type test;
+    test = Type();
+    System.out.println(test.toString());
   }
 
   static final public void Top() throws ParseException {
@@ -124,8 +125,9 @@ public class ASTGen implements ASTGenConstants {
     Id();
   }
 
-  static final public void Type() throws ParseException {
-    NameType();
+  static final public Type Type() throws ParseException {
+                Type t;
+    t = NameType();
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -138,28 +140,40 @@ public class ASTGen implements ASTGenConstants {
       }
       jj_consume_token(11);
       jj_consume_token(12);
+                            t = new ArrayType(t);
     }
+    {if (true) return t;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void NameType() throws ParseException {
-    Id();
-    label_5:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 13:
-        ;
-        break;
-      default:
-        jj_la1[10] = jj_gen;
-        break label_5;
-      }
+  static final public NameType NameType() throws ParseException {
+                        String[] ids;
+    ids = Ids(0);
+                 {if (true) return new NameType(ids);}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public String[] Ids(int soFar) throws ParseException {
+                          Token id; String[] ids;
+    id = Id();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 13:
       jj_consume_token(13);
-      Id();
+      ids = Ids(soFar+1);
+      break;
+    default:
+      jj_la1[10] = jj_gen;
+                                      ids = new String[soFar+1];
     }
+    ids[soFar] = id.image; {if (true) return ids;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void Id() throws ParseException {
-    jj_consume_token(IDENT);
+  static final public Token Id() throws ParseException {
+               Token t;
+    t = jj_consume_token(IDENT);
+    {if (true) return t;}
+    throw new Error("Missing return statement in function");
   }
 
   static private boolean jj_initialized_once = false;
