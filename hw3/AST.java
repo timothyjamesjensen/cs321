@@ -12,21 +12,25 @@ class Class {
   private String  name;
   private Args    args;
   private Class[] subclasses;
+  private Methods methods;
 
   Class(boolean isAbstract,
         String  name,
         Args    args,
-        Class[] subclasses) {
+        Class[] subclasses,
+        Methods methods) {
 
     this.isAbstract = isAbstract;
     this.name = name;
     this.args = args;
     this.subclasses = subclasses;
+    this.methods = methods;
 
   }
 
   void genJava(int n, String parent, ArrayList<String> pList) {
     ArrayList<String> argList = new ArrayList<>();
+    ArrayList<String> methodList = new ArrayList<>();
     StringBuffer buf = new StringBuffer();
     if (isAbstract) {
       buf.append("abstract ");
@@ -43,7 +47,20 @@ class Class {
     indent(0, "\n");
     indent(n+1, "// declare default constructor for this class\n");
     writeConstructor(n+1, name, pList, argList); 
-    indent(n+1, "// add additional methods and fields here ...\n");   
+    indent(n+1, "// add additional methods and fields here ...\n"); 
+    //Methods.genJava(methods, null, n, methodList);
+    //StringBuffer methodBuf = new StringBuffer();
+    //if (methodList.size() != 0) {
+    //  int i = 0;
+    //  while (i < methodList.size()) {
+       // methodBuf.append(methodList.get(i));
+       // methodBuf.append(" " + methodList.get(i+1));
+        //methodBuf.append("(" + methodList.get(i+2) + ")\n"); 
+        //indent(n+1, methodBuf.toString());
+        //methodBuf.delete(0, methodBuf.length());
+        //i=i+2;
+    //  }
+    //}
     System.out.println("}");
     
     genJava(n, subclasses, name, argList); 
@@ -189,7 +206,7 @@ class Arg {
     System.out.println(msg);
   }
 
-  
+
   public void genJava(int n, ArrayList<String> argList) {
     StringBuffer buf = new StringBuffer();
     if (visibility!=null) {
@@ -210,11 +227,11 @@ class Arg {
 }
 
 abstract class Type {
-  
+
   Type() {
 
   }
- 
+
 }
 
 class NameType extends Type {
@@ -226,7 +243,7 @@ class NameType extends Type {
     this.ids = ids;
 
   }
-  
+
   public String toString() {  // Add this method to the NameType class
     if (ids.length==1) {
       return ids[0];
@@ -251,9 +268,117 @@ class ArrayType extends Type {
     this.elem = elem;
 
   }
-  
+
   public String toString() {  // Add this method to the ArrayType class
     return elem.toString() + " []";
   }
 
 }
+
+class Methods {
+  // declare the fields for this class
+  private Methods before;
+  private Method last;
+
+  // declare default constructor for this class
+  Methods(Methods before, Method last) {
+    this.before = before;
+    this.last = last;
+  }
+
+  // add additional methods and fields here ...
+   public static void genJava(Methods args, Methods end, int n, ArrayList<String> argList) {
+    if (args!=end) {
+      genJava(args.before, end, n, argList);
+      args.last.genJava(n, argList);
+    }
+  }
+
+}
+class Method {
+  // declare the fields for this class
+  private Type ret;
+  private String name;
+  private Param [] params;
+
+  // declare default constructor for this class
+  Method(Type ret, String name, Param [] params) {
+    this.ret = ret;
+    this.name = name;
+    this.params = params;
+  }
+
+  // add additional methods and fields here ...
+
+  public void indent(int n, String msg) {
+    for (int i=0; i<n; i++) {
+      System.out.print("  ");
+    }
+    System.out.println(msg);
+  }
+
+
+  public void genJava(int n, ArrayList<String> argList) {
+    StringBuffer buf = new StringBuffer();
+    if (ret == null) {
+      buf.append("void");
+    } else {
+      buf.append(ret.toString());
+    }
+    buf.append(" ");
+    buf.append(name);
+    buf.append("(");
+    //indent(n, buf.toString());
+
+    argList.add(ret.toString());
+    argList.add(name);
+    StringBuffer par = new StringBuffer();
+    if (params.length == 0) {
+      argList.add("");
+      return;
+    }
+    for (int i = 0; i < params.length; i++) {
+      System.out.print("good");
+
+      par.append("");
+      System.out.print("good");
+
+      if (i+1 < params.length) { par.append(", "); }
+      System.out.print("good");
+
+    }
+    System.out.print("good");
+
+    argList.add(par.toString());
+    System.out.print("good");
+
+  }
+
+
+}
+
+class Param {
+  // declare the fields for this class
+  private Type type;
+  private String name;
+
+  // declare default constructor for this class
+  Param(Type type, String name) {
+    this.type = type;
+    this.name = name;
+  }
+
+  // add additional methods and fields here ...
+
+  public String toString() {
+  StringBuffer buf = new StringBuffer();
+System.out.print("good");
+  
+  buf.append(type.toString() + " ");
+  buf.append(name);
+  System.out.print("good");
+ 
+  return buf.toString();
+  }
+}
+

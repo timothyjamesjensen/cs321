@@ -25,14 +25,14 @@ Class[] Top() : { Class[] c = null; } {
 }
 
 Class Class() : { boolean isAbstract = false; Token name; Args args = null;
-                  Class[] subClasses = new Class[0]; Class sc; } { 
+                  Class[] subClasses = new Class[0]; Class sc; Methods meth = null; } { 
   ("abstract" {isAbstract = true; } )?
      "class" name = Id()
      ("(" args = Args() ")")?
-     ("{" ( subClasses = classList(0) ) "}")?
+     ("{" ( meth = Methods() ) ( subClasses = classList(0) ) "}")?
 
 
-  { return new Class(isAbstract, name.image, args, subClasses); } 
+  { return new Class(isAbstract, name.image, args, subClasses, meth); } 
 } 
 
 Class[] classList(int soFar) : { Class c; Class[] subClasses = new Class[0]; } {
@@ -40,6 +40,29 @@ Class[] classList(int soFar) : { Class c; Class[] subClasses = new Class[0]; } {
   ( subClasses=classList(soFar+1) | { subClasses = new Class[soFar+1]; } )
   { subClasses[soFar] = c; 
     return subClasses; }
+}
+
+Methods Methods() : { Methods before = null; Method last; } {
+  (last = Method() { before = new Methods(null, last); }
+      ( last = Method() { before = new Methods(before, last); } )*)?
+
+  { return before; }
+}
+
+Method Method() : { Type ret; Token name; Param[] params = new Param[0]; } {
+  ret = Type() name = Id()  ("(" params = ParamList(0) ")")?
+  { return new Method(ret, name.image, params); }
+}
+
+Param[] ParamList(int soFar) : { Param[] params = new Param[0]; Param p = null; } {
+  (p = Param() ("," params=ParamList(soFar+1) | { params = new Param[soFar+1]; } ))?
+  { if (soFar == 0) return params; }
+  { params[soFar] = p; return params; }
+}
+
+Param Param() : { Type t; Token n; } {
+  t = Type() n = Id()
+  { return new Param(t, n.image); }
 }
 
 Args Args() : { Args before = null; Arg last; } {
