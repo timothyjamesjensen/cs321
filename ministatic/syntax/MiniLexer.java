@@ -214,6 +214,7 @@ public class MiniLexer extends SourceLexer implements MiniTokens {
         reserved.put("print",   new Integer(PRINT));
         reserved.put("true",    new Integer(TRUE));
         reserved.put("false",   new Integer(FALSE));
+        reserved.put("for",     new Integer(FOR));
     }
 
     //- Numeric integer literals ----------------------------------------------

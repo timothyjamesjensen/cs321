@@ -5,6 +5,8 @@ import compiler.Position;
  */
 public abstract class Stmt {
 
+    
+
     /** Print an indented description of this abstract syntax node,
      *  including a name for the node itself at the specified level
      *  of indentation, plus more deeply indented descriptions of
@@ -98,4 +100,5 @@ public abstract class Stmt {
      *  initialized before this statement is executed.
      */
     public abstract VarSet analyze(InitAnalysis init, VarSet initialized);
+
 }

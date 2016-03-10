@@ -1,3 +1,3 @@
-javacc ASTGen.jj
+javacc ASTGenPart2.jj
 
-javac ASTGen.java AST.java
+javac ASTGen.java ASTPart2.java

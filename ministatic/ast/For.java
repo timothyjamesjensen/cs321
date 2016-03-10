@@ -79,7 +79,12 @@ public class For extends PosStmt {
      *  return result is the environment at the end of the statement.
      */
     public Env analyze(ScopeAnalysis scoping, Env env) {
-        return null; // TODO: replace this with correct code!
+        Env local;
+        local = first.analyze(scoping, env);
+        test.analyze(scoping, local);
+        step.analyze(scoping, local);
+        body.analyze(scoping, local);
+        return env; // TODO: replace this with correct code!
     }
 
     /** Generate a dot description for the environment structure of this
@@ -97,6 +102,10 @@ public class For extends PosStmt {
      *  to the associated error handler).
      */
     public void analyze(TypeAnalysis typing) {
+        first.analyze(typing);
+        test.analyze(typing);
+        step.analyze(typing);
+        body.analyze(typing);
         // TODO: replace this with correct code!
     }
 
@@ -108,6 +117,11 @@ public class For extends PosStmt {
      *  initialized before this statement is executed.
      */
     public VarSet analyze(InitAnalysis init, VarSet initialized) {
-        return null; // TODO: replace this with correct code!
-    }
+        VarSet temp;
+        temp = first.analyze(init, initialized);
+        test.analyze(init, temp);// Note: result is discarded
+        step.analyze(init, temp);// Note: result is discarded
+        body.analyze(init, temp);// Note: result is discarded
+        return initialized;
+	}
 }

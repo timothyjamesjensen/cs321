@@ -12,13 +12,13 @@ import ast.*;
 %semantic Object
 
 %token ELSE EQL FALSE GTE IDENT IF INT INTLIT
-%token LAND LOR LTE NEQ PRINT TRUE WHILE BOOLEAN
+%token LAND LOR LTE NEQ PRINT TRUE WHILE BOOLEAN FOR
 
 %type <Position> '+' '-' '*' '/' '!'
 %type <Position> '~' '&' '^' '|'
 %type <Position> '<' '>' LTE GTE NEQ EQL
 %type <Position> TRUE FALSE LAND LOR
-%type <Position> ';' WHILE IF ELSE PRINT '='
+%type <Position> ';' FOR WHILE IF ELSE PRINT '='
 %type <Block>    stmts block
 %type <Stmt>     stmt
 %type <InitStmt> initStmt
@@ -45,6 +45,7 @@ stmts   : stmts stmt                    { $1.addStmt($2); $$ = $1; }
 stmt    : initStmt ';'                  { $$ = $1; }
         | block                         { $$ = $1; }
         | WHILE test stmt               { $$ = new While($1, $2, $3); }
+        | FOR '(' initStmt ';' stepStmt ';' stepStmt ')' stmt      { $$ = new For($1, $3, $5, $7, $9); }
         | IF test stmt ELSE stmt        { $$ = new If($1, $2, $3, $5); }
         | IF test stmt                  { $$ = new If($1, $2, $3, new Empty()); }
         | PRINT expr ';'                { $$ = new Print($1, $2); }

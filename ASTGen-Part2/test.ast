@@ -1,0 +1,7 @@
+class C(protected int x) {
+
+   int eval() 
+   void print(java.io.PrintStrea out) 
+   class D1(private int y)
+   class D2(int z)
+}
