@@ -1,6 +1,10 @@
 // Tim Jensen
 // CS 321
-// ASsignment 3 Task 1
+// Assignment 3 Task 3 and 4
+
+// Task is fully functional. Task 4 is mostly complete. I have completed
+//parts 1 and 2 of it, however I was unaable to complete the 3rd part where
+// I generate the actual java code. I started to late and ran our of time :(
 
 import java.util.ArrayList;
 
