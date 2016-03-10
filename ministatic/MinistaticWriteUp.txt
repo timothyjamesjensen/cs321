@@ -1,0 +1,83 @@
+Part 2
+
+For the first steps in part 2, I needed to 
+let the compiler know that it should accept
+for loops. This first step was adding 'FOR' to the
+tokens in Mini.jacc like this
+
+%token FOR LAND LOR ...
+
+This allowed me to tell the lexer that 'for' is a
+reserves word, and that we should take action on it.
+The following line was added to MiniLexer.java
+
+reserved.put("for", new Integer(FOR));
+
+Now the lexer knows that 'for' is a reserved word,
+and that we need to do something with it. The next 
+step is to add a production in Mini.jacc that will
+recognized the pattern for a for loop and take action.
+
+First things first, I needed to add FOR to the 
+positions like this
+
+%type <Position> ';' FOR WHILE IF ELSE PRINT '='
+
+Next I added a production to the grammar that
+would recognize a for loop
+
+| FOR '(' initStmt ';' stepStmt ';' stepStmt ')' stmt     
+  { $$ = new For($1, $3, $5, $7, $9); }
+
+After all this was in place, the compiler would recognize
+and accept a for loop. Now it was time to go make some 
+changes in For.java to define the accepted syntax.
+
+The first 'TODO' in For.java required me to implement
+scope analysis. This would allow the compiler to determine
+whether a variable has been declared in scope or not. The 
+following code was added to For.java
+
+Env local;
+local = first.analyze(scoping, env);
+test.analyze(scoping, local);
+step.analyze(scoping, local);
+body.analyze(scoping, local);
+return env;
+
+for first.analyze I used the supplied 'env' variable,
+however for the subsequent analysis, I need to create a
+new extended environment that includes variables declared 
+at the beginning of the for loop. This is why I create
+'Env local' and pass that into the functions. I do not return
+'local' however, because I don't want any variables declared in
+first to be available outside of the for loop.
+
+Next I needed to handle type analysis. The following code was added
+to For.java
+
+first.analyze(typing);
+
+//something needs to be changed here.
+//this currently doesn't account for whether or not
+//test is a boolean
+test.analyze(typing);
+step.analyze(typing);
+body.analyze(typing);
+
+The last step for implementing Part 2 was initialization analysis.
+I needed to ensure that the all the variables used in the for loop
+had been initialized. I added the following code to For.java
+
+VarSet temp;
+temp = first.analyze(init, initialized);
+test.analyze(init, temp);// Note: result is discarded
+step.analyze(init, temp);// Note: result is discarded
+body.analyze(init, temp);// Note: result is discarded
+return initialized;
+
+In the above code, the initialized parameter is the set of variable that
+have been initialized. first has the potential to initialize variables 
+that are used in the rest of the for loop, so we add the results of first
+to initialized and save it in a temporary list and use that to check the rest 
+of the for loop. We discard the results of test, step, and body.
