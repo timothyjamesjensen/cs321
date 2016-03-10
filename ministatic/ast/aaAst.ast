@@ -1,0 +1,133 @@
+// Timothy Jensen
+// CS321
+// HW4 Part1
+abstract class Expr(protected Position pos) {
+
+	class ArrayAccess(protected Expr arr, protected Expr idx) {
+    	class ArrayAssign(private Expr rhs)
+  	}
+
+	class Assign(private Id lhs, private Expr rhs)
+
+	abstract class BinExpr(protected Expr left, protected Expr right) {
+
+		abstract class BinArithExpr() {
+			class Add()
+			class Div()
+			class Mul()
+			class Sub()
+		}
+
+		abstract class BinBitwiseExpr() {
+			class BAnd()
+			class BOr()
+			class BXor()
+		}
+
+		abstract class BinCompExpr() {
+			class Gt()
+			class Gte()
+			class Lt()
+			class Lte()
+		}
+
+		abstract class BinEqualityExpr() {
+			class Eql()
+			class Neq()
+		}
+
+		abstract class BinLogicExpr() {
+			class LAnd()
+			class LOr()
+		}
+
+	}
+
+	class BoolLit(private boolean value)
+
+	abstract class UnExpr(protected Expr exp) {
+
+		abstract class UnArithExpr() {
+			class UMinus()
+			class UPlus()
+		}
+
+		class BNot()
+		class LNot()
+	}
+
+	class Id(String name)
+	class IntLit(private int num)
+	class NewArray(private Type type, private Expr size)
+
+}
+
+//in the java file there were two constructors for the
+//following two classes. I determined that this is the
+//correct way to create the ast because the other 
+//constructer seems to be handling incorrect input
+
+class DotEnvOutput(protected java.io.PrintStream out)
+class DotOutput(protected java.io.PrintStream out)
+
+class Env(private Id id, private Type type, private Env rest)
+class IdList(Id head, IdList rest)
+class IndentOutput(private java.io.PrintStream out)
+
+abstract class Stmt() {
+	
+	class Block()
+
+	abstract class InitStmt() {
+
+		abstract class StepStmt() {
+			class Empty()
+			class ExprStmt()
+		}
+
+		class VarDecl(private Type type, private VarIntro[] intros, private int used)
+
+	}
+
+	abstract class PosStmt(protected Position pos) {
+		class For(InitStmt first, StepStmt test, StepStmt step, Stmt body)
+		class If(Expr test, Stmt ifTrue, Stmt ifFalse)
+		class Print(private Expr exp)
+		class While(private Expr test, private Stmt body)
+	}
+
+}
+
+class TestDot()
+class TestDotEnv()
+class TestHtml()
+class TestIndent()
+class TestInit()
+class TestScoping()
+class TestText()
+class TestTyping()
+
+class TextOutput(protected java.io.PrintStream out) {
+	class HTMLOutput()
+}
+
+abstract class Type() {
+	
+	class ArrayType(private Type elem)
+	class PrimType(private String typename)
+
+}
+
+class VarIntro(protected Id id) {
+	class InitVarIntro(private Expr expr)
+}
+
+class VarSet(private Env head, private VarSet rest)
+
+//The following three classes should be children of the parent class Phase
+//however there was no included phase class in the ast folder so I didn't
+//want to create a phase class.
+
+class InitAnalysis()
+class ScopeAnalysis()
+class TypeAnalysis()

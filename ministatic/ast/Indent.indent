@@ -1,0 +1,72 @@
+Expr
+    ArrayAccess
+    	ArrayAssign
+    Assign
+	BinExpr
+		BinArithExpr
+			Add
+			Div
+			Mul
+			Sub
+		BinBitwiseExpr
+			BAnd
+			BOr
+			BXor
+		binCompExpr
+			Gt
+			Gte
+			Lt
+			Lte
+		BinEqualityExpr
+			Eql
+			Neq
+		BinLogicExpr
+			LAnd
+			LOr
+	BoolLit
+	UnExpr
+		UnArtihExpr
+			UMinus
+			UPlus
+		BNot
+		LNot
+	Id
+	IntLit
+	NewArray
+DotEnvOutput
+DotOutput
+Env
+IdList
+IndentOutput
+Stmt	
+	Block
+	InitStmt
+		StepStmt	
+			Empty
+			ExprStmt
+		VarDecl
+	PosStmt	
+		For
+		If
+		Print
+		While
+TestDot
+TestDotEnv
+TestHtml
+TestIndent
+TestInit
+TestScoping
+TestText
+TestTyping
+TextOutput
+	HTMLOutput
+Type
+	ArrayType
+	PrimType
+VarIntro
+	InitVarIntro
+VarSet
+Phase
+	InitAnalysis
+	ScopeAnalysis
+	TypeAnalysis
