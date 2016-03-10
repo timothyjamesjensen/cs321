@@ -1,0 +1,202 @@
+//--------------------------------------------------------------------
+// CS321 Languages and Compiler Design I, Winter 2016
+//
+// Homework 3, Tasks 3 and 4, Notes and Sample Solution (ASTGen.jj)
+//
+// This is the version of ASTGen.jj that was constructed in the
+// sample solution videos, so there are not a lot of comments to
+// explain the details.  (Most of the comments that you will see
+// are actually left over from the Task 2 sample solution, which
+// was used as the starting point for the follow on exercises.)
+// Please consult the videos for explanations (or ask me if you
+// have questions about how this code works).
+// 
+//--------------------------------------------------------------------
+
+PARSER_BEGIN(ASTGen)
+
+public class ASTGen {
+  public static void main(String args[]) throws ParseException {
+    new ASTGen(System.in);  // Read from standard input
+    Class[] cs = Top();
+    //Class.indent(new IndentOutput(System.out), 2, cs);
+    Class.generate(null, cs);
+    System.out.println("Syntax is valid");
+  }
+}
+
+PARSER_END(ASTGen)
+
+//- Define the syntax of a simple language for AST hierarchies: ------
+
+// NOTE: this grammar is presented in top-down fashion, beginning
+// with the start symbol for the grammar.  Some people may prefer
+// to approach this in bottom-up order, starting with the lexical
+// rules at the end of the file and working back up to this point
+// from there.  Your choice!
+
+// A ".ast" file is a sequence of zero or more classes, followed
+// by an end of file marker:
+
+Class[] Top() : { Class[] cs; } {
+  (cs=subclasses(0, null, null)) <EOF>
+  { return cs; }
+}
+
+// Each class has an optional "abstract" modifier, an identifier that
+// names the class, an optional list of fields/constructor arguments,
+// and an optional list of zero or more subclasses:
+
+Class Class(Args args, Methods methods)
+  : { boolean isAbs = false;
+      String  id;
+      Class[] cs;
+    } {
+  ("abstract" { isAbs = true; })?
+     "class" id=Id()
+     ("(" args=Args(args) ")")?
+     ("{" 
+          methods=Methods(methods)
+          (cs=subclasses(0, args, methods) | { cs=new Class[0]; })
+      "}" | { cs=new Class[0]; })
+  { return new Class(isAbs, id, args, methods, cs); }
+}
+
+Class[] subclasses(int soFar, Args args, Methods methods)
+  : { Class c; Class[] classes; } {
+  (c=Class(args, methods) classes=subclasses(soFar+1, args, methods)
+   { classes[soFar] = c; return classes; })
+  | { return new Class[soFar]; }
+}
+
+// Constructor arguments are specified by a list of zero or more
+// comma-separated elements.  In the following grammar, the first
+// Arg() call matches the first argument, with the ("," Arg())*
+// portion matching and additional arguments, each prefixed by a
+// comma.  The whole thing is wrapped in (...)? to allow for an
+// empty argument list:
+
+Args Args(Args before) : { Arg last; } {
+  (last=Arg()
+       { before = new Args(before, last); }
+     ("," last=Arg()
+       { before = new Args(before, last); })*)?
+  { return before; }
+}
+
+// Individual arguments begin with an optional "visbility" modifier
+// (one of the strings "public", "protected", or "private"), a type,
+// and an identifier that specifies the argument name:
+
+Arg Arg() : { String vis; Type t; String id; } {
+  vis=Vis() t=Type() id=Id()
+  { return new Arg(vis, t, id); }
+}
+
+String Vis() : { Token t; } {
+  ((t="public" | t="protected" | t="private") { return t.image; })
+  | { return null; }
+}
+
+// Types can be specified by a grammar of the form:
+//
+//   Type -> NameType
+//   Type -> Type "[" "]"
+//
+// This grammar is left recursive, so it can't be used directly, but
+// it is easy to rewrite the grammar without left recursion: every
+// type begins with an NameType followed by zero or more sets of
+// matching square brackets, "[" "]":
+
+Type Type() : { String[] strs; Type t; } {
+  strs=NameType(0)
+     { t = new NameType(strs); }
+     ("[" "]" { t = new ArrayType(t); })*
+  { return t; }
+}
+
+// Note that we use two distinct tokens here rather than a single
+// "[]"; this allows ".ast" files to include spaces, comments, or
+// other items from our SKIP rules between the open and close
+// brackets, without any additional effort on our part.
+
+// A NameType is a sequence of identifiers, separated by periods.
+// We include the rules for recognizing NameTypes in a parsing
+// function rather than trying to capture this in a single regular
+// expression token.  This is important because it means (1) that
+// source programs may include spaces, line breaks, comments or
+// other SKIP elements in NameTypes without any additional work; and
+// (2) that we will be able to store and manipulate the individual
+// parts of a NameType within an abstract syntax tree.  Note that
+// our grammar for describing a list of period-separated identifiers
+// follows exactly the same patterns as we used in the code above
+// for parsing lists of comma-separated arguments.
+
+String[] NameType(int soFar) : { String id; String[] strs; } {
+  id=Id() ("." strs=NameType(soFar+1)
+          |  { strs=new String[soFar+1]; } )
+  { strs[soFar] = id;
+    return strs;
+  } 
+}
+
+// For convenience, we use the following parsing function to
+// recognize a single identifier.  This isn't particularly important
+// here, but it will be useful when we come to add semantic actions:
+// the logic for reading a token and returning its image can be
+// written here just once so that it doesn't need to repeated in
+// other parts of the code.
+
+String Id() : { Token t; } {
+  t=<IDENT> { return t.image; }
+}
+
+Methods Methods(Methods before) : { Method m; } {
+    (m=Method()
+     { before = new Methods(before, m); })*
+    { return before; }
+}
+
+Method Method() : { Type ret; String id; Param[] ps; } {
+  (ret=Type() | "void" { ret=null; })
+  id=Id()
+  "("
+    (ps=Params(0) | {ps = new Param[0];})
+  ")"
+  { return new Method(ret, id, ps); }
+}
+
+Param[] Params(int soFar) : { Param p; Param[] ps; } {
+  p=Param() ("," ps=Params(soFar+1)
+            |  { ps=new Param[soFar+1]; })
+  { ps[soFar] = p;
+    return ps;
+  }
+}
+
+Param Param() : { Type t; String id; } {
+  t=Type() id=Id()
+  { return new Param(t, id); }
+}
+
+
+//-- Define the lexical structure of an input language: --------------
+
+// Input elements that should be ignored/skipped:
+SKIP : {
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+| <"/*" (~["*"])* ("*" | ~["*","/"] (~["*"])* "*")* "/">
+}
+
+// Lexemes that should be reported as valid tokens:
+TOKEN : {
+  <IDENT : <START> (<PART>)*>
+| <#START : ["a"-"z","A"-"Z"]>
+| <#PART  : <START> | ["0"-"9","_"]>
+}
+
+//--------------------------------------------------------------------
